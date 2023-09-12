@@ -2,6 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using CreekRiver.Models;
 
 public class CreekRiverDbContext : DbContext
+/*  DbContext represents our database as .NET objects that we can access. */
+
+/*   DbContext.This is how inheritance is indicated in C#. Inheritance means that a class inherits all of the properties, fields, and methods  */ 
+
 {
 
     public DbSet<Reservation> Reservations { get; set; }

@@ -38,28 +38,24 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
+app.MapGet("/api/campsites", (CreekRiverDbContext db) =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    return db.Campsites.ToList();
+    /* 
+     EF Core, is turning this method chain into a SQL query: SELECT Id, Nickname, ImageUrl, CampsiteTypeId FROM "Campsites"; 
 
-app.MapGet("/weatherforecast", () =>
+    and then turning the tabular data that comes back from the database into .NET objects! 
+
+    ASP.NET is serializing those .NET objects into JSON to send back to the client.*/
+
+    /* dependency injection, where the framework sees a dependency that the handler requires, and passes in an instance of it as an arg so that the handler can use it. */
+});
+
+app.MapGet("/api/campsites/{id}", (CreekRiverDbContext db, int id) =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateTime.Now.AddDays(index),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    return db.Campsites.Include(c => c.CampsiteType).Single(c => c.Id == id);
+});
 
+/* Include() 等于 _expand */
 app.Run();
 
-record WeatherForecast(DateTime Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
