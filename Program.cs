@@ -57,5 +57,88 @@ app.MapGet("/api/campsites/{id}", (CreekRiverDbContext db, int id) =>
 });
 
 /* Include() 等于 _expand */
+
+//Create a Campsite
+app.MapPost("/api/campsites", (CreekRiverDbContext db, Campsite campsite) =>
+{
+    db.Campsites.Add(campsite);
+    db.SaveChanges();
+    return Results.Created($"/api/campsites/{campsite.Id}", campsite);
+});
+
+//Delete a campsite
+app.MapDelete("/api/campsites/{id}", (CreekRiverDbContext db, int id) =>
+{
+    Campsite campsite = db.Campsites.SingleOrDefault(campsite => campsite.Id == id);
+    if (campsite == null)
+    {
+        return Results.NotFound();
+    }
+    db.Campsites.Remove(campsite);
+    db.SaveChanges();
+    return Results.NoContent();
+
+});
+
+//Update a Campsite's Details
+app.MapPut("/api/campsites/{id}", (CreekRiverDbContext db, int id, Campsite campsite) =>
+{
+    Campsite campsiteToUpdate = db.Campsites.SingleOrDefault(campsite => campsite.Id == id);
+    if (campsiteToUpdate == null)
+    {
+        return Results.NotFound();
+    }
+    campsiteToUpdate.Nickname = campsite.Nickname;
+    campsiteToUpdate.CampsiteTypeId = campsite.CampsiteTypeId;
+    campsiteToUpdate.ImageUrl = campsite.ImageUrl;
+
+    db.SaveChanges();
+    return Results.NoContent();
+});
+
+//Getting Reservations with Related Data
+app.MapGet("/api/reservations", (CreekRiverDbContext db) =>
+{
+    return db.Reservations
+        .Include(r => r.UserProfile)
+        .Include(r => r.Campsite)
+        .ThenInclude(c => c.CampsiteType)
+        .OrderBy(res => res.CheckinDate)
+        .ToList();
+});
+
+//Booking a Reservation and Cancelling
+app.MapPost("/api/reservations", (CreekRiverDbContext db, Reservation newRes) =>
+{
+    try
+    {
+        db.Reservations.Add(newRes);
+        db.SaveChanges();
+        return Results.Created($"/api/reservations/{newRes.Id}", newRes);
+    }
+    catch (DbUpdateException)
+    {
+        return Results.BadRequest("Invalid data submitted");
+    }
+}
+);
+
+/* JSON Object to test:
+
+{
+    "userProfileId": 1,
+    "campsiteId": 1,
+    "checkinDate": "2023-07-18",
+    "checkoutDate": "2023-07-20"
+} 
+
+*/
+
+//Calculating Total Nights and Total Cost
+//to the Reservation class: add 3 properties 
+
+
+//Class Based Inheritance
+
 app.Run();
 
