@@ -138,7 +138,16 @@ app.MapPost("/api/reservations", (CreekRiverDbContext db, Reservation newRes) =>
 //to the Reservation class: add 3 properties 
 
 
-//Class Based Inheritance
+//Class Based Inheritance Part 1
+//base class or parent class
+//subclass or child class
+
+// public class subclass : base classs
+// public class Tesla : Vehicle
+
+//Class Based Inheritance Part 2 : virtual --- override
+//    public virtual void Drive()
+//  public override void Drive()
 
 app.Run();
 
